@@ -50,6 +50,8 @@ from perfkitbenchmarker.linux_packages import oldisim_dependencies
 
 FLAGS = flags.FLAGS
 
+flags.DEFINE_integer('oldisim_num_threads', 1, 'number of threads',
+                     lower_bound=1, upper_bound=40)
 flags.DEFINE_integer('oldisim_num_leaves', 4, 'number of leaf nodes',
                      lower_bound=1, upper_bound=64)
 flags.DEFINE_list('oldisim_fanout', [],
@@ -111,7 +113,7 @@ def Prepare(benchmark_spec):
   # Launch job on the leaf nodes.
   leaf_server_bin = oldisim_dependencies.BinaryPath('LeafNode')
   for vm in leaf_vms:
-    leaf_cmd = '%s --threads=%s' % (leaf_server_bin, vm.num_cpus)
+    leaf_cmd = '%s --threads=%s' % (leaf_server_bin, FLAGS.oldisim_num_threads)
     vm.RemoteCommand('%s &> /dev/null &' % leaf_cmd)
 
 
@@ -125,7 +127,7 @@ def SetupRoot(root_vm, leaf_vms):
   fanout_args = ' '.join(['--leaf=%s' % i.internal_ip
                           for i in leaf_vms])
   root_server_bin = oldisim_dependencies.BinaryPath('ParentNode')
-  root_cmd = '%s --threads=%s %s' % (root_server_bin, root_vm.num_cpus,
+  root_cmd = '%s --threads=%s %s' % (root_server_bin, FLAGS.oldisim_num_threads,
                                      fanout_args)
   logging.info('Root cmdline: %s', root_cmd)
   root_vm.RemoteCommand('%s &> /dev/null &' % root_cmd)
@@ -202,7 +204,7 @@ def RunLoadTest(benchmark_spec, fanout):
   time.sleep(5)
   driver_cmd = '%s -s %s:%s -t 30 -- %s %s --threads=%s --depth=16' % (
       launch_script, FLAGS.oldisim_latency_metric, FLAGS.oldisim_latency_target,
-      driver_binary, driver_args, driver_vm.num_cpus)
+      driver_binary, driver_args, FLAGS.oldisim_num_threads)
   logging.info('Driver cmdline: %s', driver_cmd)
   stdout, _ = driver_vm.RemoteCommand(driver_cmd, should_log=True)
   return ParseOutput(stdout)
