@@ -28,12 +28,14 @@ BINARY_BASE = 'release/workloads/search'
 
 
 def _Install(vm, packages):
-  vm.Install('build_tools')
-  vm.InstallPackages(packages)
-  vm.RemoteCommand('git clone --recursive %s' % OLDISIM_GIT)
-  vm.RemoteCommand('cd %s && git checkout %s && '
-                   'scons -j$(cat /proc/cpuinfo | grep processor | wc -l)' %
-                   (OLDISIM_DIR, OLDISIM_VERSION))
+  pass
+  # vm.Install('build_tools')
+  # vm.InstallPackages(packages)
+  # vm.RemoteCommand('git clone --recursive %s' % OLDISIM_GIT)
+  # vm.RemoteCommand('cd %s && git checkout %s && '
+  #                  # 'scons -j$(cat /proc/cpuinfo | grep processor | wc -l)' %
+  #                  'scons' %
+  #                  (OLDISIM_DIR, OLDISIM_VERSION))
 
 
 def YumInstall(vm):
